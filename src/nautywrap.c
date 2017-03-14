@@ -503,11 +503,61 @@ graph_autgrp(PyObject *self, PyObject *args)
 
 
 static char graph_cert_docs[] =
-"graph_cert(g): \n\
+        "graph_cert(g): \n\
     Return the unique certificate of NyGraph 'g'.\n";
 
 static PyObject*
 graph_cert(PyObject *self, PyObject *args)
+{
+    PyObject *py_graph;
+    NyGraph * g;
+    PyObject *pyret;
+    int i;
+
+    if (!PyArg_ParseTuple(args, "O", &py_graph)) {
+        PyErr_SetString(PyExc_TypeError, "Missing argument.");
+        return NULL;
+    }
+    g = _make_nygraph(py_graph);
+    if (g == NULL) return NULL;
+
+    // produce graph certificate by computing canonical labeling
+    g->options->getcanon = TRUE;
+    if (extend_canonical(g) == NULL) {
+        PyErr_SetString(PyExc_MemoryError,
+                        "Allocating canonical matrix failed");
+        return NULL;
+    }
+    // the produced generators are ignored
+    g->options->userautomproc = NULL;
+
+    // for canonical label
+    g->options->writeautoms = TRUE;
+    //g->options->writemarkers = TRUE;
+
+    // *** nauty ***
+    nauty(g->matrix, g->lab, g->ptn, NULL, g->orbits,
+          g->options, g->stats,  g->workspace, g->worksize,
+          g->no_setwords, g->no_vertices, g->cmatrix);
+
+
+#if PY_MAJOR_VERSION >= 3
+    pyret = Py_BuildValue("y#", g->cmatrix,
+            g->no_vertices * g->no_setwords * sizeof(setword));
+#else
+    pyret = Py_BuildValue("s#", g->cmatrix, g->no_vertices * g->no_setwords * sizeof(setword));
+    //pyret = Py_BuildValue("s", text);
+#endif
+    destroy_nygraph(g);
+    return pyret;
+}
+
+static char graph_cert_label_docs[] =
+"graph_cert_label(g): \n\
+    Return the unique labelling of NyGraph 'g'.\n";
+
+static PyObject*
+graph_cert_label(PyObject *self, PyObject *args)
 {
     PyObject *py_graph;
     NyGraph * g;
@@ -562,6 +612,7 @@ graph_cert(PyObject *self, PyObject *args)
 #if PY_MAJOR_VERSION >= 3
     pyret = Py_BuildValue("y#", g->cmatrix,
             g->no_vertices * g->no_setwords * sizeof(setword));
+    pyret = Py_BuildValue("s", text);
 #else
     //pyret = Py_BuildValue("s#", g->cmatrix, g->no_vertices * g->no_setwords * sizeof(setword));
     pyret = Py_BuildValue("s", text);
@@ -574,8 +625,9 @@ graph_cert(PyObject *self, PyObject *args)
 //  Python module initialization  =============================================
 
 static PyMethodDef nautywrap_methods[] = {
-    {"graph_cert", graph_cert, METH_VARARGS, graph_cert_docs},
-    {"graph_autgrp", graph_autgrp, METH_VARARGS, graph_autgrp_docs},
+        {"graph_cert_label", graph_cert_label, METH_VARARGS, graph_cert_label_docs},
+        {"graph_cert", graph_cert, METH_VARARGS, graph_cert_docs},
+        {"graph_autgrp", graph_autgrp, METH_VARARGS, graph_autgrp_docs},
     {"make_nygraph", make_nygraph, METH_VARARGS, make_nygraph_docs},
     {"delete_nygraph", delete_nygraph, METH_VARARGS, delete_nygraph_docs},
     {NULL}

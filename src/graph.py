@@ -23,6 +23,7 @@ __all__ = [
     'autgrp',
     'isomorphic',
     'certificate',
+    'canon_label',
     'delete_random_edge',
 ]
 
@@ -182,6 +183,21 @@ def certificate(g):
     if not isinstance(g, Graph):
         raise TypeError
     return nautywrap.graph_cert(g)
+
+
+def canon_label(g):
+    '''
+    Compute a certificate based on the canonical labeling of vertices.
+
+    *g*
+        A Graph object.
+
+    return ->
+        The certificate as a byte string.
+    '''
+    if not isinstance(g, Graph):
+        raise TypeError
+    return nautywrap.graph_cert_label(g)
 
 
 def isomorphic(a, b):
