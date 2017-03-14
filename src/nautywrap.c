@@ -532,7 +532,7 @@ graph_cert(PyObject *self, PyObject *args)
     g->options->userautomproc = NULL;
 
     // for canonical label
-    g->options->writeautoms = TRUE;
+    //g->options->writeautoms = TRUE;
     //g->options->writemarkers = TRUE;
 
     // *** nauty ***
@@ -589,15 +589,8 @@ graph_cert_label(PyObject *self, PyObject *args)
     nauty(g->matrix, g->lab, g->ptn, NULL, g->orbits,
             g->options, g->stats,  g->workspace, g->worksize,
             g->no_setwords, g->no_vertices, g->cmatrix);
-    // print cmatrix
 
-    printf("lab: ");
-
-    /*for (i = 0; i < g->no_vertices; ++i)
-    {
-        printf("%d ", g->lab[i]);
-    }
-    printf("\n");*/
+    //printf("lab: ");
 
     char text[10000] = {0}; //deliberately very big array
     char *p = text;
@@ -605,7 +598,7 @@ graph_cert_label(PyObject *self, PyObject *args)
     for(i = 0; i < g->no_vertices; ++i)
         sprintf(p += strlen(p), "%d ", g->lab[i]);
 
-    printf("%s\n", text);
+    //printf("%s\n", text);
 
 
 
