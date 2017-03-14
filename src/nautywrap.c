@@ -582,7 +582,7 @@ graph_cert_label(PyObject *self, PyObject *args)
     g->options->userautomproc = NULL;
 
     // for canonical label
-    g->options->writeautoms = TRUE;
+    //g->options->writeautoms = TRUE;
     //g->options->writemarkers = TRUE;
 
     // *** nauty ***
