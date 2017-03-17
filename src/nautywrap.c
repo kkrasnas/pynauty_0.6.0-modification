@@ -554,6 +554,60 @@ graph_cert(PyObject *self, PyObject *args)
     return pyret;
 }
 
+void
+putsettostr(char *f, set *set1, int *curlenp, int linelength,
+       int m, boolean compress)
+{
+    int slen,j1,j2;
+    char s[40];
+
+    j1 = -1;
+    while ((j1 = nextelement(set1,m,j1)) >= 0)
+    {
+        j2 = j1;
+        if (compress)
+        {
+            while (nextelement(set1,m,j2) == j2 + 1) ++j2;
+            if (j2 == j1+1) j2 = j1;
+        }
+        slen = itos(j1+labelorg,s);
+        if (j2 >= j1 + 2)
+        {
+            s[slen] = ':';
+            slen += 1 + itos(j2+labelorg,&s[slen+1]);
+        }
+
+        if (linelength > 0 && *curlenp + slen + 1 >= linelength)
+        {
+            //fprintf(stdout,"printing linebreak");
+            sprintf(f += strlen(f), "\n   ");
+            *curlenp = 3;
+        }
+        //fprintf(stdout,"current S is  %s",s);
+        sprintf(f += strlen(f)," %s",s);
+        *curlenp += slen + 1;
+        j1 = j2;
+    }
+}
+
+
+void
+putgraphtostr(char *f, graph *g, int linelength, int m, int n)
+{
+    int i,curlen;
+    set *pg;
+
+    for (i = 0, pg = g; i < n; ++i, pg += m)
+    {
+        //fprintf(f,"%3d : ",i+labelorg);
+        sprintf(f += strlen(f), "%3d: ",i+labelorg);
+        curlen = 7;
+        putsettostr(f,pg,&curlen,linelength,m,FALSE);
+        sprintf(f += strlen(f),";");
+    }
+}
+
+
 static char graph_cert_label_docs[] =
 "graph_cert_label(g): \n\
     Return the unique labelling of NyGraph 'g'.\n";
@@ -601,9 +655,12 @@ graph_cert_label(PyObject *self, PyObject *args)
         sprintf(p += strlen(p), "%d ", g->lab[i]);
 
     //printf("%s\n", text);
-    putcanon(stdout, g->lab, g->cmatrix,1000,g->no_setwords,g->no_vertices);
+    //putcanon(stdout, g->lab, g->cmatrix,1000,g->no_setwords,g->no_vertices);
+    char adj_canon[10000] = {0}; //deliberately very big array
+    char *canon = adj_canon;
     //putgraph(stdout,g->cmatrix,1000,g->no_setwords,g->no_vertices);
-
+    putgraphtostr(adj_canon,g->cmatrix,1000,g->no_setwords,g->no_vertices);
+    printf("%s\n", adj_canon);
 
 #if PY_MAJOR_VERSION >= 3
     pyret = Py_BuildValue("y#", g->cmatrix,
