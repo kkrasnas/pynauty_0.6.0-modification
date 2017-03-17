@@ -13,8 +13,10 @@ GNU General Public License for more details.
 */
 
 #include <Python.h>
-#include <nauty.h>
+#include <naututil.h>
 #include <nautywrap.h>
+
+
 
 
 //  static global (yuck) variables  -------------------------------------------
@@ -599,7 +601,8 @@ graph_cert_label(PyObject *self, PyObject *args)
         sprintf(p += strlen(p), "%d ", g->lab[i]);
 
     //printf("%s\n", text);
-
+    putcanon(stdout, g->lab, g->cmatrix,1000,g->no_setwords,g->no_vertices);
+    //putgraph(stdout,g->cmatrix,1000,g->no_setwords,g->no_vertices);
 
 
 #if PY_MAJOR_VERSION >= 3

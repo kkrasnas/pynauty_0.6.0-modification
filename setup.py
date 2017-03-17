@@ -49,6 +49,8 @@ ext_pynauty = Extension(
         extra_compile_args = [ '-O4', '-fPIC' ],
         extra_objects = [ nauty_dir + '/' + 'nauty.o',
                           nauty_dir + '/' + 'nautil.o',
+                          nauty_dir + '/' + 'naututil.o',
+                          nauty_dir + '/' + 'nausparse.o',
                           nauty_dir + '/' + 'naugraph.o',
                           nauty_dir + '/' + 'schreier.o',
                           nauty_dir + '/' + 'naurng.o',
