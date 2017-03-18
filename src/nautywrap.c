@@ -668,7 +668,7 @@ graph_cert_label(PyObject *self, PyObject *args)
     pyret = Py_BuildValue("s", text);
 #else
     //pyret = Py_BuildValue("s#", g->cmatrix, g->no_vertices * g->no_setwords * sizeof(setword));
-    pyret = Py_BuildValue("s", text);
+    pyret = Py_BuildValue("s", adj_canon);
 #endif
     destroy_nygraph(g);
     return pyret;
